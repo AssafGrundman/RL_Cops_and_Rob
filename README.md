@@ -1,4 +1,4 @@
-# RL_Cops_and_Rob
+# Using verification methods for ML solutions
 
 This project is part of final project in BIU.
 
