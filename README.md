@@ -4,4 +4,10 @@ This project is part of final project in BIU.
 
 We deal with improving ML solutions using verification methods.
 
-Authors: Assaf & Shlomi
+## People
+
+Assaf Grundman
+
+Shlomi Mamman
+
+[Avraham Raviv]("https://github.com/AvrahamRaviv/")
