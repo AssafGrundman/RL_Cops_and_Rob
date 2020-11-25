@@ -8,7 +8,7 @@ from utils import writeSmv, runSmv
 BOARD_COLS = utils.BOARD_COLS
 BOARD_ROWS = utils.BOARD_ROWS
 Q_LEARNING = True
-Play_Random = True
+Play_Random = False
 
 
 class State:
@@ -72,19 +72,18 @@ class State:
         self.isEnd = False
         self.player_turn = 1
 
+        writeSmv(num_of_players, BOARD_COLS - 1, self.p1, a_vecs)
+        ans, wl_r = runSmv()
+        if ans == 'win':
+            self.isEnd = True
+            self.smv = True
+            return
         if Play_Random or np.random.uniform(0, 1) <= self.exp_rate:
             idx = np.random.choice(len(a_vecs))
             action = a_vecs[idx]
-        else
-            writeSmv(num_of_players, BOARD_COLS - 1, self.p1, a_vecs)
-            ans, wl_r = runSmv()
-            if ans == 'win':
-                self.isEnd = True
-                self.smv = True
-                return
-            else:
-                action = ans
-                # pl1.states_value[wl_r] = min(-1, pl1.states_value[wl_r])
+        else:
+            action = ans
+            # pl1.states_value[wl_r] = min(-1, pl1.states_value[wl_r])
 
         c_action = int(action / 100)
         r_action = int(action % 100)
