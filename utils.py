@@ -67,8 +67,7 @@ def vec_exist(vec, vecs):
         return 4
     if mirror_vec(vec, 'vertical') in vecs:
         return 5
-    if mirror_vec(mirror_vec(vec, 'vertical'), 'horizontal') in vecs:
-        return 6
+    # need to fix the rest
     return False
 
 
@@ -92,6 +91,22 @@ def rearrange_vector(vec):
     res_ret = 100 * res_sort + rob_po
     return res_ret
 
+
+# find equal vec in l_vecs
+def findEqual(cand, v_vecs):
+    if rotate_vec(cand, 1) in v_vecs:
+        return rotate_vec(cand, 1)
+    if rotate_vec(cand, 2) in v_vecs:
+        return rotate_vec(cand, 2)
+    if rotate_vec(cand, 3) in v_vecs:
+        return rotate_vec(cand, 3)
+    if mirror_vec(cand, 'horizontal') in v_vecs:
+        return mirror_vec(cand, 'horizontal')
+    if mirror_vec(cand, 'vertical') in v_vecs:
+        return mirror_vec(cand, 'vertical')
+    if mirror_vec(mirror_vec(cand, 'vertical'), 'horizontal') in v_vecs:
+        return mirror_vec(mirror_vec(cand, 'vertical'), 'horizontal')
+    return False
 
 # check if any cop sit on same slot of rob
 def copWin(cop_sum, rob_po):
@@ -192,23 +207,27 @@ def validVec(vec, max_digit=9):
     return True
 
 
-# generate a list with all valid vecs
+# generate 2 lists: 1. a list with all valid vecs. 2. A short list, containing one representation of each state
 def createVecs(numOfPlayers, max_grid=9):
     full_vecs = []
+    vecs = []
     path = f"tests/vecs{numOfPlayers}{max_grid}.txt"
     if os.path.exists(path):
         with open(path, 'r') as fr:
-            full_vecs = fr.read()[1:-1]
-            full_vecs = list(full_vecs.split(", "))
-            full_vecs = list(map(int, full_vecs))
+            vecs = fr.read()[1:-1]
+            vecs = list(vecs.split(", "))
+            vecs = list(map(int, vecs))
     else:
         for i in range(10 ** (2 * numOfPlayers - 1), int(10 ** (2 * numOfPlayers) * ((max_grid + 1) / 10)), 1):
             if i != rearrange_vector(i):
                 continue
-            if i not in full_vecs:
+            if i not in vecs:
                 if validVec(i, max_grid):
                     full_vecs.append(i)
-    return full_vecs
+        for vf in full_vecs:
+            if not bool(vec_exist(vf, vecs)):
+                vecs.append(vf)
+    return full_vecs, vecs
 
 
 # write the first part of smv file
