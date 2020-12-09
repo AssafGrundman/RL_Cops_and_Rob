@@ -95,7 +95,7 @@ class State:
         self.position = l_action
         self.counter = 0
 
-    def play(self, rounds=100, init_pos=None, a_vecs=None, num_of_players=None):
+    def play(self, rounds=100, init_pos=None, a_vecs=None, l_vecs=None, num_of_players=None):
         if init_pos is not None:
             self.position = init_pos
         win_arr = [0, 0]
