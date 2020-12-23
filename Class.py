@@ -67,12 +67,12 @@ class State:
             self.p2.feedReward(0)
 
     # board reset
-    def reset(self, a_vecs=None, num_of_players=None):
+    def reset(self, a_vecs=None, l_vecs = None, num_of_players=None):
         self.boardHash = None
         self.isEnd = False
         self.player_turn = 1
 
-        writeSmv(num_of_players, BOARD_COLS - 1, self.p1, a_vecs)
+        writeSmv(num_of_players, BOARD_COLS - 1, self.p1, a_vecs, l_vecs)
         ans, wl_r = runSmv()
         if ans == 'win':
             self.isEnd = True
@@ -112,19 +112,19 @@ class State:
                 # Player 1
                 positions = self.availablePositions()
                 if Q_LEARNING:
-                    p1_action = self.p1.chooseAction(positions, self.player_turn, self.position)
+                    p1_action = self.p1.chooseAction(positions, self.player_turn, self.position, l_vecs)
                 else:
-                    p1_action = self.p1.chooseAction2(positions, self.player_turn, self.position)
+                    p1_action = self.p1.chooseAction2(positions, self.player_turn, self.position, l_vecs)
                 self.updateState(sum(p1_action, []))
                 board_hash = self.getHash()
-                self.p1.addState(board_hash)
+                self.p1.addState(board_hash, l_vecs)
                 self.showBoard()
                 win = self.winner()
                 if win is not None:
                     self.giveReward()
                     self.p1.reset()
                     self.p2.reset()
-                    self.reset(a_vecs, num_of_players)
+                    self.reset(a_vecs, l_vecs, num_of_players)
                     if win == 1:
                         win_arr[0] = win_arr[0] + 1
                     else:
@@ -135,12 +135,12 @@ class State:
                     # Player 2
                     positions = self.availablePositions()
                     if Q_LEARNING:
-                        p2_action = self.p2.chooseAction(positions, self.player_turn, self.position)
+                        p2_action = self.p2.chooseAction(positions, self.player_turn, self.position, l_vecs)
                     else:
-                        p2_action = self.p2.chooseAction2(positions, self.player_turn, self.position)
+                        p2_action = self.p2.chooseAction2(positions, self.player_turn, self.position, l_vecs)
                     self.updateState(p2_action)
                     board_hash = self.getHash()
-                    self.p2.addState(board_hash)
+                    self.p2.addState(board_hash, l_vecs)
                     self.showBoard()
                     win = self.winner()
                     if win is not None:
@@ -150,7 +150,7 @@ class State:
                         self.winner()
                         self.p1.reset()
                         self.p2.reset()
-                        self.reset(a_vecs, num_of_players)
+                        self.reset(a_vecs, l_vecs, num_of_players)
                         if win == 1:
                             win_arr[0] = win_arr[0] + 1
                         else:
@@ -245,7 +245,7 @@ class Player:
         boardHash = str(board.reshape(BOARD_COLS * BOARD_ROWS))
         return boardHash
 
-    def chooseAction(self, positions, pl_turn, current_position):
+    def chooseAction(self, positions, pl_turn, current_position, l_v):
         if positions is None:
             return sum(current_position[np.maximum(0, -pl_turn)], [])
         idx = np.random.choice(len(positions))
@@ -264,6 +264,8 @@ class Player:
                     cop_po = index_to_number(current_position[0])
                     rob_po = index_to_number([p])
                 next_boardHash = rearrange_vector(cop_po * 100 + rob_po)
+                if next_boardHash not in l_v:
+                    next_boardHash = utils.findEqual(next_boardHash, l_v)
                 value = 0 if self.states_value.get(next_boardHash) is None else self.states_value.get(next_boardHash)
                 # print("value", value)
                 if value >= value_max:
@@ -307,12 +309,15 @@ class Player:
         return action
 
     # append a hash state
-    def addState(self, state):
+    def addState(self, state, l_v):
         state_ul = sum(state, [])
         res_state = 0
         for i in range(len(state_ul)):
             res_state = res_state + index_to_number([state_ul[i]]) * (100 ** (len(state_ul) - i - 1))
-        self.states.append(rearrange_vector(res_state))
+        res_state= rearrange_vector(res_state)
+        if res_state not in l_v:
+            res_state = utils.findEqual(res_state, l_v)
+        self.states.append(res_state)
 
     # at the end of game, backpropagate and update states value
     def feedReward(self, reward):

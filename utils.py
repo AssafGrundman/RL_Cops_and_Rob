@@ -5,7 +5,7 @@ import numpy as np
 # defines
 BOARD_ROWS = 5
 BOARD_COLS = BOARD_ROWS
-INIT = [[[1, 2], [2, 2]], [[3, 2]]]
+INIT = [[[3, 2], [2, 2]], [[1, 1]]]
 
 
 # convert init state to vector
@@ -65,8 +65,14 @@ def vec_exist(vec, vecs):
         return 3
     if mirror_vec(vec, 'horizontal') in vecs:
         return 4
-    if mirror_vec(vec, 'vertical') in vecs:
+    if mirror_vec(rotate_vec(vec, 1), 'horizontal') in vecs:
         return 5
+    if mirror_vec(rotate_vec(vec, 2), 'horizontal') in vecs:
+        return 6
+    if mirror_vec(rotate_vec(vec, 3), 'horizontal') in vecs:
+        return 7
+    # if mirror_vec(vec, 'vertical') in vecs:
+        # return 5
     # need to fix the rest
     return False
 
@@ -102,11 +108,30 @@ def findEqual(cand, v_vecs):
         return rotate_vec(cand, 3)
     if mirror_vec(cand, 'horizontal') in v_vecs:
         return mirror_vec(cand, 'horizontal')
-    if mirror_vec(cand, 'vertical') in v_vecs:
-        return mirror_vec(cand, 'vertical')
-    if mirror_vec(mirror_vec(cand, 'vertical'), 'horizontal') in v_vecs:
-        return mirror_vec(mirror_vec(cand, 'vertical'), 'horizontal')
+    if mirror_vec(rotate_vec(cand, 1), 'horizontal') in v_vecs:
+        return mirror_vec(rotate_vec(cand, 1), 'horizontal')
+    if mirror_vec(rotate_vec(cand, 2), 'horizontal') in v_vecs:
+        return mirror_vec(rotate_vec(cand, 2), 'horizontal')
+    if mirror_vec(rotate_vec(cand, 3), 'horizontal') in v_vecs:
+        return mirror_vec(rotate_vec(cand, 3), 'horizontal')
     return False
+
+#def inerse_findEqual(cand, v_vecs):
+#    if rotate_vec(cand, 1) in v_vecs:
+#        return rotate_vec(cand, 1)
+#    if rotate_vec(cand, 2) in v_vecs:
+#        return rotate_vec(cand, 2)
+#    if rotate_vec(cand, 3) in v_vecs:
+#        return rotate_vec(cand, 3)
+#    if mirror_vec(cand, 'horizontal') in v_vecs:
+#        return mirror_vec(cand, 'horizontal')
+#    if mirror_vec(rotate_vec(cand, 1), 'horizontal') in v_vecs:
+#        return mirror_vec(rotate_vec(cand, 1), 'horizontal')
+#    if mirror_vec(rotate_vec(cand, 2), 'horizontal') in v_vecs:
+#        return mirror_vec(rotate_vec(cand, 2), 'horizontal')
+#    if mirror_vec(rotate_vec(cand, 3), 'horizontal') in v_vecs:
+#        return mirror_vec(rotate_vec(cand, 3), 'horizontal')
+#    return False
 
 # check if any cop sit on same slot of rob
 def copWin(cop_sum, rob_po):
@@ -231,13 +256,13 @@ def createVecs(numOfPlayers, max_grid=9):
 
 
 # write the first part of smv file
-def writeStart(a_vecs, filename):
+def writeStart(l_v, filename):
     if os.path.exists(filename):
         os.remove(filename)  # return
     with open(filename, 'w') as fw:
         fw.write("MODULE main\n\nVAR\n	vec : ")
         lw = '{'
-        for av in a_vecs:
+        for av in l_v:
             lw = lw + 'v' + str(av) + ', '
         lw = lw[:-2]
         fw.write(lw)
@@ -248,7 +273,7 @@ def writeStart(a_vecs, filename):
         fw.write("			esac;\n\n	init(vec) := ")
 
         init_vec = '{'
-        for lv in a_vecs:
+        for lv in l_v:
             init_vec = init_vec + 'v' + str(lv) + ', '
         init_vec = init_vec[:-2]
         fw.write(init_vec)
@@ -256,11 +281,11 @@ def writeStart(a_vecs, filename):
 
 
 # write cops part of smv file
-def writeCop(p1, a_vecs, max_digit, filename):
+def writeCop(p1, l_vecs, max_digit, filename):
     if os.path.exists(filename):
         os.remove(filename)
     with open(filename, 'w') as fw:
-        for s in a_vecs:
+        for s in l_vecs:
             swpos = str(s)
             wpos = [[], []]
             for lw in range(int(len(swpos[:-2]) / 2)):
@@ -277,11 +302,15 @@ def writeCop(p1, a_vecs, max_digit, filename):
                     i = i + 1
                     cop_sum = cop_sum + 10 ** (i + 1) * li[-i]
                 l_append = rearrange_vector(cop_sum + rob_po)
+                if l_append not in l_vecs and not copWin(int(cop_sum / 100), rob_po):
+                    l_append = findEqual(l_append, l_vecs)
                 l_next_val.append('v' + str(l_append))
                 if copWin(int(cop_sum / 100), rob_po):
                     if '0' not in l_next:
                         l_next.append(str(0))
                 else:
+                    if l_append not in l_vecs:
+                        l_append = findEqual(l_append, l_vecs)
                     l_next.append('v' + str(l_append))
             if l_next != '0':
                 l_next = ', '.join(l_next)
@@ -325,25 +354,27 @@ def writeRob(vecs, max_digit, filename):
             cop_po = int(wv / 100)
             for li in nextwv:
                 cand = cop_po * 100 + li[0] * 10 + li[1]
+                if cand not in vecs:
+                    cand = findEqual(cand, vecs)
                 l_next.append('v' + str(cand))
             l_next = ', '.join(l_next)
             f.write(f"                player = R & vec = v{wv} : " + "{" + f"{l_next}" + "};\n")
 
 
 # main function of writing the smv file
-def writeSmv(numOfPlayers, max_digit, p1, all_vecs):
+def writeSmv(numOfPlayers, max_digit, p1, all_vecs, l_vecs):
     filename_main = 'tests/test_t3.smv'
     if os.path.exists(filename_main):
         os.remove(filename_main)
     with open(filename_main, 'w') as fw:
         filename_start = f'tests/add_start_{numOfPlayers}{max_digit}.txt'
-        writeStart(all_vecs, filename_start)
+        writeStart(l_vecs, filename_start)
         with open(filename_start, 'r') as fr:
             for line in fr:
                 fw.write(line)
 
         filename_rob = f'tests/{numOfPlayers}playersnextR{max_digit}.txt'
-        writeRob(all_vecs, max_digit, filename_rob)
+        writeRob(l_vecs, max_digit, filename_rob)
         with open(filename_rob, 'r') as fr:
             for line in fr:
                 fw.write(line)
