@@ -232,7 +232,7 @@ def validVec(vec, max_digit=9):
     return True
 
 
-# generate 2 lists: 1. a list with all valid vecs. 2. A short list, containing one representation of each state
+# Generate 2 lists: 1. a list with all valid vecs. 2. A short list, containing one representation of each state
 def createVecs(numOfPlayers, max_grid=9):
     full_vecs = []
     vecs = []

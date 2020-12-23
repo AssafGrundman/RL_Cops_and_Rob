@@ -53,7 +53,7 @@ class State:
     # only when game ends
     def giveReward(self):
         result = self.winner()
-        # backpropagate reward
+        # Backpropagate reward
         if result == 1:
             print("The cop caught the rob\n")
             self.p1.feedReward(100)
