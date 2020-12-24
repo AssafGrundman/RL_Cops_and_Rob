@@ -79,7 +79,9 @@ class State:
             self.smv = True
             return
         if Play_Random or np.random.uniform(0, 1) <= self.exp_rate:
-            idx = np.random.choice(len(a_vecs))
+            idx = 0
+            while idx == 0:
+                idx = np.random.choice(len(a_vecs))
             action = a_vecs[idx]
         else:
             action = ans
