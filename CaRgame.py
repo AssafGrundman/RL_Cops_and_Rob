@@ -15,5 +15,4 @@ if __name__ == "__main__":
     a_v, l_v = createVecs(numOfPlayers, BOARD_ROWS - 1)
     res = st.play(max_games, INIT, a_v, l_v, numOfPlayers)
     print(res)
-    writeSmv(numOfPlayers, BOARD_ROWS - 1, pl1, a_v)
     print("Number of games:", sum(res))
