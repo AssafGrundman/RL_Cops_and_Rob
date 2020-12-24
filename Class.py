@@ -372,4 +372,3 @@ class HumanPlayer:
 
     def reset(self):
         pass
-
