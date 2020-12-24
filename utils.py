@@ -3,10 +3,10 @@ import subprocess
 import numpy as np
 
 # defines
-BOARD_ROWS = 5
+BOARD_ROWS = 7
 BOARD_COLS = BOARD_ROWS
-INIT = [[[3, 2], [2, 2]], [[1, 1]]]
-
+# INIT = [[[3, 2], [2, 2]], [[1, 1]]]
+INIT = [[[0, 0], [1, 0]], [[1, 1]]]
 
 # convert init state to vector
 def InitToNumbers(ret_type):
@@ -72,7 +72,7 @@ def vec_exist(vec, vecs):
     if mirror_vec(rotate_vec(vec, 3), 'horizontal') in vecs:
         return 7
     # if mirror_vec(vec, 'vertical') in vecs:
-        # return 5
+    # return 5
     # need to fix the rest
     return False
 
@@ -100,6 +100,8 @@ def rearrange_vector(vec):
 
 # find equal vec in l_vecs
 def findEqual(cand, v_vecs):
+    if not validVec(cand):
+        return 0
     if rotate_vec(cand, 1) in v_vecs:
         return rotate_vec(cand, 1)
     if rotate_vec(cand, 2) in v_vecs:
@@ -116,7 +118,8 @@ def findEqual(cand, v_vecs):
         return mirror_vec(rotate_vec(cand, 3), 'horizontal')
     return False
 
-#def inerse_findEqual(cand, v_vecs):
+
+# def inerse_findEqual(cand, v_vecs):
 #    if rotate_vec(cand, 1) in v_vecs:
 #        return rotate_vec(cand, 1)
 #    if rotate_vec(cand, 2) in v_vecs:
@@ -234,8 +237,8 @@ def validVec(vec, max_digit=9):
 
 # Generate 2 lists: 1. a list with all valid vecs. 2. A short list, containing one representation of each state
 def createVecs(numOfPlayers, max_grid=9):
-    full_vecs = []
-    vecs = []
+    full_vecs = [0]
+    vecs = [0]
     path = f"tests/vecs{numOfPlayers}{max_grid}.txt"
     if os.path.exists(path):
         with open(path, 'r') as fr:
@@ -261,19 +264,23 @@ def writeStart(l_v, filename):
         os.remove(filename)  # return
     with open(filename, 'w') as fw:
         fw.write("MODULE main\n\nVAR\n	vec : ")
-        lw = '{'
+        lw = '{0, '
         for av in l_v:
+            if av == 0:
+                continue
             lw = lw + 'v' + str(av) + ', '
         lw = lw[:-2]
         fw.write(lw)
-        fw.write(", 0};\n")
+        fw.write("};\n")
         fw.write("	player : {C, R};\n	-- 0 = COP WIN, 5 = ROB WIN\n\nASSIGN\n\n")
         fw.write("	init(player) := C;\n")
         fw.write("	next(player) := case\n				player = R: C;\n				player = C: R;\n")
         fw.write("			esac;\n\n	init(vec) := ")
 
-        init_vec = '{'
+        init_vec = '{0, '
         for lv in l_v:
+            if lv == 0:
+                continue
             init_vec = init_vec + 'v' + str(lv) + ', '
         init_vec = init_vec[:-2]
         fw.write(init_vec)
@@ -286,6 +293,8 @@ def writeCop(p1, l_vecs, max_digit, filename):
         os.remove(filename)
     with open(filename, 'w') as fw:
         for s in l_vecs:
+            if s == 0:
+                continue
             swpos = str(s)
             wpos = [[], []]
             for lw in range(int(len(swpos[:-2]) / 2)):
@@ -302,7 +311,7 @@ def writeCop(p1, l_vecs, max_digit, filename):
                     i = i + 1
                     cop_sum = cop_sum + 10 ** (i + 1) * li[-i]
                 l_append = rearrange_vector(cop_sum + rob_po)
-                if l_append not in l_vecs and not copWin(int(cop_sum / 100), rob_po):
+                if l_append not in l_vecs:
                     l_append = findEqual(l_append, l_vecs)
                 l_next_val.append('v' + str(l_append))
                 if copWin(int(cop_sum / 100), rob_po):
@@ -327,12 +336,15 @@ def writeCop(p1, l_vecs, max_digit, filename):
                     if val:
                         if p1.states_value.get(i) >= max_value:
                             max_value = p1.states_value[i]
-                            l_next_max_ret = 'v' + str(i)
+                            if i != 0:
+                                l_next_max_ret = 'v' + str(i)
+                            else:
+                                l_next_max_ret = 0
                 l_next = l_next_max_ret
-                l_next_temp = [int(x) for x in str(l_next[1:])]
-                cop_list = int(int(''.join(str(i) for i in l_next_temp)) / 100)
-                if copWin(cop_list, l_next_temp[-2] * 10 + l_next_temp[-1]):
-                    l_next = '0'
+                # l_next_temp = [int(x) for x in str(l_next[1:])]
+                # cop_list = int(int(''.join(str(i) for i in l_next_temp)) / 100)
+                # if copWin(cop_list, l_next_temp[-2] * 10 + l_next_temp[-1]):
+                #     l_next = '0'
             fw.write(f"                player = C & vec = v{s} : " + "{" + f"{l_next}" + "};\n")
 
 
@@ -342,6 +354,8 @@ def writeRob(vecs, max_digit, filename):
         os.remove(filename)  # return
     with open(filename, 'w') as f:
         for wv in vecs:
+            if wv == 0:
+                continue
             swpos = str(wv)
             wpos = [[], []]
             for lw in range(int(len(swpos[:-2]) / 2)):
@@ -380,7 +394,7 @@ def writeSmv(numOfPlayers, max_digit, p1, all_vecs, l_vecs):
                 fw.write(line)
 
         filename_cop = f'tests/{numOfPlayers}playersnextC{max_digit}.txt'
-        writeCop(p1, all_vecs, max_digit, filename_cop)
+        writeCop(p1, l_vecs, max_digit, filename_cop)
         with open(filename_cop, 'r') as fr:
             for line in fr:
                 fw.write(line)
@@ -423,7 +437,6 @@ def runSmv():
         idx = np.random.choice(len(wl_c))
         init = wl_c[idx]
         return int(init), int(wl_r[0])
-
 
 # if __name__ == "__main__":
 #     a, v = createVecs(3, 4)
