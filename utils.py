@@ -412,9 +412,7 @@ def runSmv():
     os.chdir('tests')
     output = subprocess.check_output(['nuXmv', smv_file], shell=True).splitlines()
     os.chdir('../')
-    ans = str(output[26][47:])[2:]
-    ans = ans[0:len(ans) - 1]
-    if ans == 'true':
+    if 'true' in str(output):
         return 'win', True
     else:
         loop_vecs = str(b''.join(output))
