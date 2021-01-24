@@ -1,10 +1,10 @@
 from Class import State, Player
 from utils import InitToNumbers, createVecs, writeSmv, INIT, BOARD_ROWS
-from datetime import datetime
+from datetime import datetime, timedelta
 
 expRate = 0
 max_turn = 50
-NumOfIteration = 1
+NumOfIteration = 3
 
 
 if __name__ == "__main__":
@@ -12,6 +12,7 @@ if __name__ == "__main__":
     Results = []
     Runtime = []
     for i in range(NumOfIteration):
+        now = datetime.now()
         start = 0
         stop = 0
         max_games = 15000
@@ -26,13 +27,12 @@ if __name__ == "__main__":
         res = st.play(max_games, INIT, a_v, l_v, numOfPlayers)
         print(res)
         print("Number of games:", sum(res))
-        now = datetime.now()
         current_time = now.strftime("%H:%M:%S")
         Results.append(current_time)
         Results.append(res)
         # save runtime
         stop = datetime.now()
-        runtime_game = float((stop - start).total_seconds() / 60 # save runtime in minutes
+        runtime_game = float((stop - now).total_seconds()) / 60  # save runtime in minutes
         Runtime.append(runtime_game)
 
     print(Results)
@@ -40,5 +40,7 @@ if __name__ == "__main__":
     fname = 'Results_BR5_RANDOM_FALSE.txt'
     with open(fname, 'w') as fw:
         for item in Results:
+            fw.write("%s\n" % item)
+        for item in Runtime:
             fw.write("%s\n" % item)
 

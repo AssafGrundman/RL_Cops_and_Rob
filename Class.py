@@ -76,7 +76,10 @@ class State:
         self.player_turn = 1
 
         writeSmv(num_of_players, BOARD_COLS - 1, self.p1, a_vecs, l_vecs)
-        ans, wl_r = runSmv()
+        if not Play_Random or self.counter % 100 == 0:  # Run Smv on the 100'th iteration
+            ans, wl_r = runSmv()
+        else:
+            ans = None
         if ans == 'win':
             self.isEnd = True
             self.smv = True
