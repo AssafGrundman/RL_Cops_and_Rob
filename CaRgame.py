@@ -5,11 +5,15 @@ from datetime import datetime
 expRate = 0
 max_turn = 50
 NumOfIteration = 1
-Results = []
+
 
 if __name__ == "__main__":
 
+    Results = []
+    Runtime = []
     for i in range(NumOfIteration):
+        start = 0
+        stop = 0
         max_games = 15000
         numOfPlayers = int(len(InitToNumbers(ret_type=str)) / 2)  # Number of players derive from initial vector
         max_turn = 40  # ! Not in use
@@ -26,10 +30,13 @@ if __name__ == "__main__":
         current_time = now.strftime("%H:%M:%S")
         Results.append(current_time)
         Results.append(res)
+        # save runtime
+        stop = datetime.now()
+        runtime_game = float((stop - start).total_seconds() / 60 # save runtime in minutes
+        Runtime.append(runtime_game)
 
     print(Results)
-
-    now = datetime.now()
+    print(Runtime)
     fname = 'Results_BR5_RANDOM_FALSE.txt'
     with open(fname, 'w') as fw:
         for item in Results:
