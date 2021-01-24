@@ -3,12 +3,17 @@ import subprocess
 import numpy as np
 
 # defines
-BOARD_ROWS = 7
+BOARD_ROWS = 5
 BOARD_COLS = BOARD_ROWS
-# INIT = [[[3, 2], [2, 2]], [[1, 1]]]
-INIT = [[[0, 0], [1, 0]], [[1, 1]]]
+INIT = [[[3, 2], [4, 2]], [[1, 3]]]
 
-# convert init state to vector
+
+# Convert init state to vector.
+# INPUT: initial vector in form of
+# [[[Cop_1_row ,Cop_1_column ], [Cop_2_row, Cop_2_column]], [[Rob_row, Rob_column]]]
+# OUTPUT: the vector in form of 6 digits, i.e [[[3, 2], [4, 2]], [[1, 3]]] => 324213
+# Optional additional feature: customize the function to different participants number ( 2 cops and 1 rob)
+
 def InitToNumbers(ret_type):
     init_vec = str(INIT)
     toRemove = ['[', ']', ' ', ',']
@@ -17,7 +22,8 @@ def InitToNumbers(ret_type):
     return ret_type(init_vec)
 
 
-# rotate number by 90
+# rotate number by 90 degrees
+
 def rotate_num(num):
     i = int(num / 10)
     j = num % 10
@@ -25,6 +31,7 @@ def rotate_num(num):
 
 
 # rotate full vec
+
 def rotate_vec(vec, angle=1):
     sum_rvec = 0
     for loop in range(angle):
@@ -37,6 +44,7 @@ def rotate_vec(vec, angle=1):
 
 
 # mirror number
+
 def mirror_num(num, angle='horizontal'):
     i = int(num / 10)
     j = num % 10
@@ -47,6 +55,7 @@ def mirror_num(num, angle='horizontal'):
 
 
 # mirror full vec
+
 def mirror_vec(vec, angle='horizontal'):
     sum_mvec = 0
     for i in range(int(len(str(vec)) / 2)):
@@ -56,6 +65,7 @@ def mirror_vec(vec, angle='horizontal'):
 
 
 # check if vector already exist in any manipulation
+
 def vec_exist(vec, vecs):
     if rotate_vec(vec, 1) in vecs:
         return 1
@@ -80,6 +90,7 @@ def vec_exist(vec, vecs):
 # sort vector to avoiding duplicate.
 # since 111223 equal to 121123 (because the first 4 digits are 2 cops),
 # we sort the place of cops
+
 def rearrange_vector(vec):
     rob_po = vec % 100
     cop_po = int(vec / 100)
@@ -98,7 +109,8 @@ def rearrange_vector(vec):
     return res_ret
 
 
-# find equal vec in l_vecs
+# find equal vec in l_vecs - minimize the number of possible actions
+
 def findEqual(cand, v_vecs):
     if not validVec(cand):
         return 0
@@ -137,6 +149,9 @@ def findEqual(cand, v_vecs):
 #    return False
 
 # check if any cop sit on same slot of rob
+#  INPUT: positions of cops and rob by vector
+#  OUTPUT: boolean - the cop reached the rob ?
+
 def copWin(cop_sum, rob_po):
     if type(cop_sum) == list:
         cop_sum = str(cop_sum)
@@ -166,6 +181,9 @@ def index_to_number(vec):
 
 
 # find the all options for the next turn
+#  INPUT: 1. who plays ( cop or rob) 2. current position
+#  OUTPUT: all possible actions to move (res_po)
+
 def next_positions(pl_turn, list_of_position, max_digit=10):
     cop_po = list_of_position[0]
     rob_po = list_of_position[1]
@@ -214,6 +232,7 @@ def next_positions(pl_turn, list_of_position, max_digit=10):
 # not contain 0
 # not contain number that grater than the grid
 # every player on different slot
+
 def validVec(vec, max_digit=9):
     for d in str(vec):
         if int(d) > max_digit or int(d) == 0:
@@ -236,6 +255,9 @@ def validVec(vec, max_digit=9):
 
 
 # Generate 2 lists: 1. a list with all valid vecs. 2. A short list, containing one representation of each state
+# INPUT: number of players
+# OUTPUT: 1. list of all possible vectors 2.shorter list with vectors that span all the board dimension
+
 def createVecs(numOfPlayers, max_grid=9):
     full_vecs = [0]
     vecs = [0]
@@ -259,8 +281,9 @@ def createVecs(numOfPlayers, max_grid=9):
 
 
 # write the first part of smv file
+
 def writeStart(l_v, filename):
-    if os.path.exists(filename):
+    if os.path.exists(filename):            # rewrite the file
         os.remove(filename)  # return
     with open(filename, 'w') as fw:
         fw.write("MODULE main\n\nVAR\n	vec : ")
@@ -268,7 +291,8 @@ def writeStart(l_v, filename):
         for av in l_v:
             if av == 0:
                 continue
-            lw = lw + 'v' + str(av) + ', '
+            lw = lw + 'v' + str(av) + ', '              # write all the possible vectors, in the shorter version (l_v)
+                                                        # to the file
         lw = lw[:-2]
         fw.write(lw)
         fw.write("};\n")
@@ -283,7 +307,7 @@ def writeStart(l_v, filename):
                 continue
             init_vec = init_vec + 'v' + str(lv) + ', '
         init_vec = init_vec[:-2]
-        fw.write(init_vec)
+        fw.write(init_vec)                          # write to the file all the possible initial vectors
         fw.write("};\n\n    next(vec) := case\n")
 
 
@@ -376,17 +400,20 @@ def writeRob(vecs, max_digit, filename):
 
 
 # main function of writing the smv file
+# in this function we write to smv file the outcome file of "writeRob", "writeCop" and "writeStar"
+# with "add_end.txt" which the content is constant
+
 def writeSmv(numOfPlayers, max_digit, p1, all_vecs, l_vecs):
     filename_main = 'tests/test_t3.smv'
     if os.path.exists(filename_main):
         os.remove(filename_main)
     with open(filename_main, 'w') as fw:
         filename_start = f'tests/add_start_{numOfPlayers}{max_digit}.txt'
-        writeStart(l_vecs, filename_start)
+        writeStart(l_vecs, filename_start)       # calling function to initialize the smv file
         with open(filename_start, 'r') as fr:
             for line in fr:
                 fw.write(line)
-
+        #  "filename_rob" is pre-defined file with all the possible action (rob turn) according to given position
         filename_rob = f'tests/{numOfPlayers}playersnextR{max_digit}.txt'
         writeRob(l_vecs, max_digit, filename_rob)
         with open(filename_rob, 'r') as fr:
@@ -410,19 +437,19 @@ def writeSmv(numOfPlayers, max_digit, p1, all_vecs, l_vecs):
 def runSmv():
     smv_file = f'test_t3.smv'
     os.chdir('tests')
-    output = subprocess.check_output(['nuXmv', smv_file], shell=True).splitlines()
+    output = subprocess.check_output(['nuXmv', smv_file], shell=True).splitlines() #  the string of smv running output
     os.chdir('../')
-    ans = str(output[26][47:])[2:]
+    ans = str(output[26][47:])[2:]  # we take only the "true" or "false" part as this is our important conclusion
     ans = ans[0:len(ans) - 1]
-    if ans == 'true':
-        return 'win', True
+    if ans == 'true':    # if "true" no counter example found
+        return 'win', True  # we declare a win
     else:
         loop_vecs = str(b''.join(output))
         loop_vecs = loop_vecs[loop_vecs.find("State"):]
         if loop_vecs.find('R') < loop_vecs.find('C'):
             loop_vecs = loop_vecs[loop_vecs.find('R'):]
         flag = True
-        wordList = loop_vecs.split()
+        wordList = loop_vecs.split()  # the string that hold the state machine
         wl_c = []
         wl_r = []
         for wl in wordList:
@@ -434,9 +461,10 @@ def runSmv():
                 flag = not flag
         wl_c = ' '.join(wl_c).replace('v', '').split()
         wl_r = ' '.join(wl_r).replace('v', '').split()
-        idx = np.random.choice(len(wl_c))
-        init = wl_c[idx]
-        return int(init), int(wl_r[0])
+        idx = np.random.choice(len(wl_c))  # we choose randomly state from the list of states
+                                            # the cop passed on last ruuning
+        init = wl_c[idx]   #  the chosen state use as start position for next game
+        return int(init), int(wl_r[0])  # the rob initial position stay the same
 
 # if __name__ == "__main__":
 #     a, v = createVecs(3, 4)

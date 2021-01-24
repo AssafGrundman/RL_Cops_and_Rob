@@ -10,6 +10,7 @@ BOARD_ROWS = utils.BOARD_ROWS
 Q_LEARNING = True
 Play_Random = False
 
+# class "State" holds all variable and methods related to state transformation
 
 class State:
     def __init__(self, init_vec=None, p1=None, p2=None, max_turns=50, exp_rate=0):
@@ -31,6 +32,8 @@ class State:
         if self.counter > self.max_turns:
             return -1
         return None
+
+    #  availablePositions: assistance method to output the chosen action
 
     def availablePositions(self):
         positions = next_positions(self.player_turn, self.position)
@@ -101,7 +104,7 @@ class State:
         if init_pos is not None:
             self.position = init_pos
         win_arr = [0, 0]
-        for i in range(rounds + 1):
+        for i in range(rounds + 1):  # main loop runs "max_games" (CaRgame.py) times
             if i == 0:
                 continue
             if i % 1000 == 0 and i > 0:
@@ -110,7 +113,7 @@ class State:
                 print("End after {} rounds".format(i))
                 break
             self.showBoard(True)
-            while not self.isEnd:
+            while not self.isEnd:                   # if the game is not finish this part will be executing
                 # Player 1
                 positions = self.availablePositions()
                 if Q_LEARNING:
@@ -204,6 +207,7 @@ class State:
                         print("tie!")
                     self.reset()
                     break
+    #  showBoard: method to print the board after each action
 
     def showBoard(self, initial=False):
         # p1: C  p2: R
@@ -247,19 +251,24 @@ class Player:
         boardHash = str(board.reshape(BOARD_COLS * BOARD_ROWS))
         return boardHash
 
+    #  INPUT: 1. Player class 2. possible positions as we received from "next_positions" (utils.py)
+    #  3. cop / rob turn ( 1 or -1) 4. current position ( 6-digits vector)
+    #  5. l_v = shorter version of a_v that span the board dimension
+    # OUTPUT: The chosen action - the action that going to execute
+
     def chooseAction(self, positions, pl_turn, current_position, l_v):
         if positions is None:
             return sum(current_position[np.maximum(0, -pl_turn)], [])
-        idx = np.random.choice(len(positions))
+        idx = np.random.choice(len(positions))  # choose randomly index from possible actions
         action = positions[idx]
-        if np.random.uniform(0, 1) <= self.exp_rate:
+        if np.random.uniform(0, 1) <= self.exp_rate:    # the main implementation of exploration rate
             # take random action
             idx = np.random.choice(len(positions))
             action = positions[idx]
         else:
             value_max = -999
             for p in positions:
-                if pl_turn == 1:
+                if pl_turn == 1:                # cops turn
                     cop_po = index_to_number(sum(p, []))
                     rob_po = index_to_number(current_position[1])
                 else:
