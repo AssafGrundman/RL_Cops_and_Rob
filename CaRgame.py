@@ -32,7 +32,7 @@ if __name__ == "__main__":
         Results.append(res)
         # save runtime
         stop = datetime.now()
-        runtime_game = float((stop - now).total_seconds()) / 60  # save runtime in minutes
+        runtime_game = float((stop - now).total_seconds())  # save runtime in seconds
         Runtime.append(runtime_game)
 
     print(Results)

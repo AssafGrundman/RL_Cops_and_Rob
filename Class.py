@@ -8,7 +8,7 @@ from utils import writeSmv, runSmv
 BOARD_COLS = utils.BOARD_COLS
 BOARD_ROWS = utils.BOARD_ROWS
 Q_LEARNING = True
-Play_Random = False
+Play_Random = True
 
 # class "State" holds all variable and methods related to state transformation
 
