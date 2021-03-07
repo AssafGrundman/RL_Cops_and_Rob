@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 expRate = 0
 max_turn = 50
-NumOfIteration = 3
+NumOfIteration = 1
 
 
 if __name__ == "__main__":
