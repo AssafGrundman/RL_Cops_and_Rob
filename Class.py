@@ -9,7 +9,7 @@ BOARD_COLS = utils.BOARD_COLS
 BOARD_ROWS = utils.BOARD_ROWS
 Q_LEARNING = True
 Play_Random = False
-Distance_Feature = True
+Distance_Feature = False
 
 
 # class "State" holds all variable and methods related to state transformation
@@ -290,8 +290,8 @@ class Player:
                     cop_po = index_to_number(current_position[0])
                     rob_po = index_to_number([p])
                 next_boardHash = rearrange_vector(cop_po * 100 + rob_po)
-                #if next_boardHash not in l_v:
-                #    next_boardHash = utils.findEqual(next_boardHash, l_v)
+                if next_boardHash not in l_v:
+                    next_boardHash = utils.findEqual(next_boardHash, l_v)
                 value = 0 if self.states_value.get(next_boardHash) is None else self.states_value.get(next_boardHash)
                 # print("value", value)
                 if not Play_Random and pl_turn == 1 and win_arr[0] < 60 and Distance_Feature:
