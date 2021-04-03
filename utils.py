@@ -223,7 +223,7 @@ def next_positions(pl_turn, list_of_position, blocks, max_digit=10):
             res_po.append([i + 1, j])
         if j + 1 != BOARD_COLS and j + 1 <= max_digit and [i, j + 1] not in cop_po:
             res_po.append([i, j + 1])
-    if blocks and (blocks in res_po):
+    if blocks:
         for i in range(len(blocks)):
             if blocks[i] in res_po:
                 res_po.remove(blocks[i])
