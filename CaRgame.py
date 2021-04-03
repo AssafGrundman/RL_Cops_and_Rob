@@ -3,8 +3,8 @@ from utils import InitToNumbers, createVecs, writeSmv, INIT, BOARD_ROWS
 from datetime import datetime, timedelta
 
 expRate = 0
-max_turn = 50
-NumOfIteration = 5
+max_turn = 800
+NumOfIteration = 1
 
 
 if __name__ == "__main__":
@@ -15,9 +15,8 @@ if __name__ == "__main__":
         now = datetime.now()
         start = 0
         stop = 0
-        max_games = 300000
+        max_games = 15000
         numOfPlayers = int(len(InitToNumbers(ret_type=str)) / 2)  # Number of players derive from initial vector
-        max_turn = 40  # ! Not in use
         expRate = 0.3  # rate [ 0-1 ] the agent explore new action without leaning on Q-table
         pl1 = Player("p1", exp_rate=expRate)  # create first Player class (Class.py)
         pl2 = Player("p2", exp_rate=expRate)  # create second Player class (Class.py)
@@ -37,7 +36,7 @@ if __name__ == "__main__":
 
     print(Results)
     print(Runtime)
-    fname = '08032021_Results_Count_BR5_RANDOM_TRUE.txt'
+    fname = '1_03042021_Results_One_Cop_BR5_RANDOM_False.txt'
     with open(fname, 'w') as fw:
         for item in Results:
             fw.write("%s\n" % item)
