@@ -184,7 +184,7 @@ def index_to_number(vec):
 #  INPUT: 1. who plays ( cop or rob) 2. current position
 #  OUTPUT: all possible actions to move (res_po)
 
-def next_positions(pl_turn, list_of_position, max_digit=10):
+def next_positions(pl_turn, list_of_position, blocks, max_digit=10):
     cop_po = list_of_position[0]
     rob_po = list_of_position[1]
     res_po = []
@@ -223,6 +223,10 @@ def next_positions(pl_turn, list_of_position, max_digit=10):
             res_po.append([i + 1, j])
         if j + 1 != BOARD_COLS and j + 1 <= max_digit and [i, j + 1] not in cop_po:
             res_po.append([i, j + 1])
+    if blocks and blocks in res_po:
+        for i in range(len(blocks)):
+            if blocks[i] in res_po:
+                res_po.remove(blocks[i])
     if not res_po:
         return None
     return res_po

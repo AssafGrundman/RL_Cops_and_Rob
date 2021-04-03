@@ -29,6 +29,8 @@ class State:
         self.exp_rate = exp_rate
         self.Distance_Feature = Distance_Feature  # I added a feature to help the cop to converge (and win)
         # by choosing the next action on distance from the robber
+        self.Block_Feature_values = [[2, 2], [2, 3], [3, 2], [3, 3]] #if you want to implement the blocking
+        # feature we should set here values, otherwise set it to "None"
 
     def winner(self):
         if sum(self.position[1], []) in self.position[0]:
@@ -40,7 +42,7 @@ class State:
     #  availablePositions: assistance method to output the chosen action
 
     def availablePositions(self):
-        positions = next_positions(self.player_turn, self.position)
+        positions = next_positions(self.player_turn, self.position, self.Block_Feature_values)
         return positions
 
     # get unique hash of current board state
