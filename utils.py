@@ -5,7 +5,7 @@ import numpy as np
 # defines
 BOARD_ROWS = 5
 BOARD_COLS = BOARD_ROWS
-INIT = [[[4, 2]], [[1, 3]]]
+INIT = [[[4, 1]], [[1, 3]]]
 
 
 # Convert init state to vector.

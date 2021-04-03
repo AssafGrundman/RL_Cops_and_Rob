@@ -288,18 +288,20 @@ class Player:
                     cop_po = index_to_number(current_position[0])
                     rob_po = index_to_number([p])
                 next_boardHash = rearrange_vector(cop_po * 100 + rob_po)
-                if next_boardHash not in l_v:
-                    next_boardHash = utils.findEqual(next_boardHash, l_v)
+                #if next_boardHash not in l_v:
+                #    next_boardHash = utils.findEqual(next_boardHash, l_v)
                 value = 0 if self.states_value.get(next_boardHash) is None else self.states_value.get(next_boardHash)
                 # print("value", value)
-                if value >= value_max:
-                    value_max = value
-                    action = p
                 if not Play_Random and pl_turn == 1 and win_arr[0] < 60 and Distance_Feature:
                     Distance = abs((cop_po % 10)-(rob_po % 10)) + abs(int(cop_po / 10) - int(rob_po / 10))
                     if Distance < min_distance:
                         min_distance = Distance
                         action = p
+                else:
+                    if value >= value_max:
+                        value_max = value
+                        action = p
+
         # print("{} takes action {}".format(self.name, action))
         return action
 
