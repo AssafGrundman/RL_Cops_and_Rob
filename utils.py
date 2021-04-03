@@ -3,9 +3,9 @@ import subprocess
 import numpy as np
 
 # defines
-BOARD_ROWS = 4
+BOARD_ROWS = 5
 BOARD_COLS = BOARD_ROWS
-INIT = [[[3, 2], [1, 2]], [[1, 3]]]
+INIT = [[[3, 2], [4, 2]], [[1, 3]]]
 
 
 # Convert init state to vector.
