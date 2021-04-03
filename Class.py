@@ -29,7 +29,7 @@ class State:
         self.exp_rate = exp_rate
         self.Distance_Feature = Distance_Feature  # I added a feature to help the cop to converge (and win)
         # by choosing the next action on distance from the robber
-        self.Block_Feature_values = [[2, 2], [2, 3], [3, 2], [3, 3]] #if you want to implement the blocking
+        self.Block_Feature_values = [[2, 2], [2, 3], [3, 2], [3, 3]]  # if you want to implement the blocking
         # feature we should set here values, otherwise set it to "None"
 
     def winner(self):
@@ -280,7 +280,7 @@ class Player:
             action = positions[idx]
         else:
             value_max = -999
-            if Distance_Feature: # if we use the distance feature, initial value is set
+            if Distance_Feature:  # if we use the distance feature, initial value is set
                 min_distance = (BOARD_ROWS - 2) * 2
             for p in positions:
                 if pl_turn == 1:  # cops turn
@@ -295,7 +295,7 @@ class Player:
                 value = 0 if self.states_value.get(next_boardHash) is None else self.states_value.get(next_boardHash)
                 # print("value", value)
                 if not Play_Random and pl_turn == 1 and win_arr[0] < 60 and Distance_Feature:
-                    Distance = abs((cop_po % 10)-(rob_po % 10)) + abs(int(cop_po / 10) - int(rob_po / 10))
+                    Distance = abs((cop_po % 10) - (rob_po % 10)) + abs(int(cop_po / 10) - int(rob_po / 10))
                     if Distance < min_distance:
                         min_distance = Distance
                         action = p
