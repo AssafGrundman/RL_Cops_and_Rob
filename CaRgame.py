@@ -3,7 +3,7 @@ from utils import InitToNumbers, createVecs, writeSmv, INIT, BOARD_ROWS
 from datetime import datetime, timedelta
 
 expRate = 0
-max_turn = 800
+max_turn = 50
 NumOfIteration = 1
 
 
