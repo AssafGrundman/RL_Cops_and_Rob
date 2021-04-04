@@ -226,18 +226,19 @@ def next_positions(pl_turn, list_of_position, max_digit=10):
             res_po.append([block_index, j + 1])
     if not res_po:
         return None
-    for rp in res_po:
+    res_po_temp = res_po
+    res_po = []
+    for rp in res_po_temp:
         if pl_turn == 1:
             rp_temp = sum(sum(rp, []), [])
             rp_temp = [rp_temp[0] * 10 + rp_temp[1], rp_temp[2] * 10 + rp_temp[3]]
-            for r in rp_temp:
-                if r in Block_Feature_values:
-                    res_po.remove(rp)
+            if numpy.asarray(rp_temp).isdisjoint(Block_Feature_values):
+                res_po.append(rp)
         else:
             rp_temp = [rp[0] * 10 + rp[1]]
             for r in rp_temp:
-                if r in Block_Feature_values:
-                    res_po.remove(rp)
+                if rp_temp.isdisjoint(Block_Feature_values):
+                    res_po.append(rp)
     if not res_po:
         return None
     return res_po
