@@ -3,9 +3,10 @@ import subprocess
 import numpy as np
 
 # defines
-BOARD_ROWS = 6
+BOARD_ROWS = 5
 BOARD_COLS = BOARD_ROWS
-INIT = [[[2, 1], [4, 1]], [[1, 3]]]
+INIT = [[[1, 2], [1, 4]], [[3, 2]]]
+Block_Feature_values = [22, 23, 13]
 
 
 # Convert init state to vector.
@@ -184,49 +185,59 @@ def index_to_number(vec):
 #  INPUT: 1. who plays ( cop or rob) 2. current position
 #  OUTPUT: all possible actions to move (res_po)
 
-def next_positions(pl_turn, list_of_position, blocks, max_digit=10):
+def next_positions(pl_turn, list_of_position, max_digit=10):
     cop_po = list_of_position[0]
     rob_po = list_of_position[1]
     res_po = []
     if pl_turn == 1:  # cop turn
         for cp in cop_po:
-            i = cp[0]
+            block_index = cp[0]
             j = cp[1]
-            if i > 1 and [i - 1, j] not in cop_po:
+            if block_index > 1 and [block_index - 1, j] not in cop_po:
                 if len(cop_po) == 1:
-                    res_po.append([[[i - 1, j]]])
+                    res_po.append([[[block_index - 1, j]]])
                 else:
-                    res_po.append([[[i - 1, j]], [p for p in cop_po if p != cp][:]])
-            if j > 1 and [i, j - 1] not in cop_po:
+                    res_po.append([[[block_index - 1, j]], [p for p in cop_po if p != cp][:]])
+            if j > 1 and [block_index, j - 1] not in cop_po:
                 if len(cop_po) == 1:
-                    res_po.append([[[i, j - 1]]])
+                    res_po.append([[[block_index, j - 1]]])
                 else:
-                    res_po.append([[[i, j - 1]], [p for p in cop_po if p != cp][:]])
-            if i + 1 != BOARD_ROWS and i + 1 <= max_digit and [i + 1, j] not in cop_po:
+                    res_po.append([[[block_index, j - 1]], [p for p in cop_po if p != cp][:]])
+            if block_index + 1 != BOARD_ROWS and block_index + 1 <= max_digit and [block_index + 1, j] not in cop_po:
                 if len(cop_po) == 1:
-                    res_po.append([[[i + 1, j]]])
+                    res_po.append([[[block_index + 1, j]]])
                 else:
-                    res_po.append([[[i + 1, j]], [p for p in cop_po if p != cp][:]])
-            if j + 1 != BOARD_COLS and j + 1 <= max_digit and [i, j + 1] not in cop_po:
+                    res_po.append([[[block_index + 1, j]], [p for p in cop_po if p != cp][:]])
+            if j + 1 != BOARD_COLS and j + 1 <= max_digit and [block_index, j + 1] not in cop_po:
                 if len(cop_po) == 1:
-                    res_po.append([[[i, j + 1]]])
+                    res_po.append([[[block_index, j + 1]]])
                 else:
-                    res_po.append([[[i, j + 1]], [p for p in cop_po if p != cp][:]])
+                    res_po.append([[[block_index, j + 1]], [p for p in cop_po if p != cp][:]])
     else:
-        i = rob_po[0][0]
+        block_index = rob_po[0][0]
         j = rob_po[0][1]
-        if i > 1 and [i - 1, j] not in cop_po:
-            res_po.append([i - 1, j])
-        if j > 1 and [i, j - 1] not in cop_po:
-            res_po.append([i, j - 1])
-        if i + 1 != BOARD_ROWS and i + 1 <= max_digit and [i + 1, j] not in cop_po:
-            res_po.append([i + 1, j])
-        if j + 1 != BOARD_COLS and j + 1 <= max_digit and [i, j + 1] not in cop_po:
-            res_po.append([i, j + 1])
-    if blocks:
-        for i in range(len(blocks)):
-            if blocks[i] in res_po:
-                res_po.remove(blocks[i])
+        if block_index > 1 and [block_index - 1, j] not in cop_po:
+            res_po.append([block_index - 1, j])
+        if j > 1 and [block_index, j - 1] not in cop_po:
+            res_po.append([block_index, j - 1])
+        if block_index + 1 != BOARD_ROWS and block_index + 1 <= max_digit and [block_index + 1, j] not in cop_po:
+            res_po.append([block_index + 1, j])
+        if j + 1 != BOARD_COLS and j + 1 <= max_digit and [block_index, j + 1] not in cop_po:
+            res_po.append([block_index, j + 1])
+    if not res_po:
+        return None
+    for rp in res_po:
+        if pl_turn == 1:
+            rp_temp = sum(sum(rp, []), [])
+            rp_temp = [rp_temp[0] * 10 + rp_temp[1], rp_temp[2] * 10 + rp_temp[3]]
+            for r in rp_temp:
+                if r in Block_Feature_values:
+                    res_po.remove(rp)
+        else:
+            rp_temp = [rp[0] * 10 + rp[1]]
+            for r in rp_temp:
+                if r in Block_Feature_values:
+                    res_po.remove(rp)
     if not res_po:
         return None
     return res_po
@@ -256,6 +267,19 @@ def validVec(vec, max_digit=9):
     if len(all_list) != len(set(all_list)):
         return False
     return True
+##
+
+def Blocks(vec):
+    if Block_Feature_values is None:
+        return False
+    c1 = int(vec / 10000)
+    vec = vec % 10000
+    c2 = int(vec /100)
+    r = vec % 100
+    if (c1 in Block_Feature_values) or (c2 in Block_Feature_values) or (r in Block_Feature_values):
+        return True
+    return False
+
 
 
 # Generate 2 lists: 1. a list with all valid vecs. 2. A short list, containing one representation of each state
@@ -276,7 +300,7 @@ def createVecs(numOfPlayers, max_grid=9):
             if i != rearrange_vector(i):
                 continue
             if i not in vecs:
-                if validVec(i, max_grid):
+                if validVec(i, max_grid) and (not Blocks(i)):
                     full_vecs.append(i)
         for vf in full_vecs:
             if not bool(vec_exist(vf, vecs)):
