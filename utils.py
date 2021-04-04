@@ -232,12 +232,12 @@ def next_positions(pl_turn, list_of_position, max_digit=10):
         if pl_turn == 1:
             rp_temp = sum(sum(rp, []), [])
             rp_temp = [rp_temp[0] * 10 + rp_temp[1], rp_temp[2] * 10 + rp_temp[3]]
-            if numpy.asarray(rp_temp).isdisjoint(Block_Feature_values):
+            if not (set(rp_temp) & set(Block_Feature_values)):
                 res_po.append(rp)
         else:
             rp_temp = [rp[0] * 10 + rp[1]]
             for r in rp_temp:
-                if rp_temp.isdisjoint(Block_Feature_values):
+                if not (set(rp_temp) & set(Block_Feature_values)):
                     res_po.append(rp)
     if not res_po:
         return None
