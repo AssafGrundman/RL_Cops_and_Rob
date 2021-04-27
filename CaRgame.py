@@ -2,9 +2,9 @@ from Class import State, Player
 from utils import InitToNumbers, createVecs, writeSmv, INIT, BOARD_ROWS
 from datetime import datetime, timedelta
 
-expRate = 0
+# expRate = 0.3
 max_turn = 50
-NumOfIteration = 1
+NumOfIteration = 3
 
 
 if __name__ == "__main__":
@@ -36,7 +36,7 @@ if __name__ == "__main__":
 
     print(Results)
     print(Runtime)
-    fname = '1_03042021_Results_One_Cop_BR5_RANDOM_False.txt'
+    fname = 'RANDOM_True_4_25042021_gamma=0.6_BR6.txt'
     with open(fname, 'w') as fw:
         for item in Results:
             fw.write("%s\n" % item)

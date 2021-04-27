@@ -3,10 +3,10 @@ import subprocess
 import numpy as np
 
 # defines
-BOARD_ROWS = 5
+BOARD_ROWS = 6
 BOARD_COLS = BOARD_ROWS
-INIT = [[[1, 2], [1, 4]], [[3, 2]]]
-Block_Feature_values = [22, 23, 13]
+INIT = [[[1, 2], [1, 3]], [[4, 1]]]
+Block_Feature_values = None
 
 
 # Convert init state to vector.
@@ -226,21 +226,22 @@ def next_positions(pl_turn, list_of_position, max_digit=10):
             res_po.append([block_index, j + 1])
     if not res_po:
         return None
-    res_po_temp = res_po
-    res_po = []
-    for rp in res_po_temp:
-        if pl_turn == 1:
-            rp_temp = sum(sum(rp, []), [])
-            rp_temp = [rp_temp[0] * 10 + rp_temp[1], rp_temp[2] * 10 + rp_temp[3]]
-            if not (set(rp_temp) & set(Block_Feature_values)):
-                res_po.append(rp)
-        else:
-            rp_temp = [rp[0] * 10 + rp[1]]
-            for r in rp_temp:
+    if Block_Feature_values is not None:
+        res_po_temp = res_po
+        res_po = []
+        for rp in res_po_temp:
+            if pl_turn == 1:
+                rp_temp = sum(sum(rp, []), [])
+                rp_temp = [rp_temp[0] * 10 + rp_temp[1], rp_temp[2] * 10 + rp_temp[3]]
                 if not (set(rp_temp) & set(Block_Feature_values)):
                     res_po.append(rp)
-    if not res_po:
-        return None
+            else:
+                rp_temp = [rp[0] * 10 + rp[1]]
+                for r in rp_temp:
+                    if not (set(rp_temp) & set(Block_Feature_values)):
+                        res_po.append(rp)
+        if not res_po:
+            return None
     return res_po
 
 

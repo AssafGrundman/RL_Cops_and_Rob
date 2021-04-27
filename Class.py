@@ -8,7 +8,7 @@ from utils import writeSmv, runSmv
 BOARD_COLS = utils.BOARD_COLS
 BOARD_ROWS = utils.BOARD_ROWS
 Q_LEARNING = True
-Play_Random = False
+Play_Random = True
 Distance_Feature = False
 
 
@@ -251,7 +251,7 @@ class Player:
         self.states = []  # record all positions taken
         self.lr = 0.2
         self.exp_rate = exp_rate
-        self.decay_gamma = 0.9
+        self.decay_gamma = 0.6
         self.states_value = {}  # state -> value
 
     @staticmethod
